@@ -30,13 +30,20 @@ pub async fn start_server(
     let xmx = format!("-Xmx{}M", memory);
     let xms = format!("-Xms{}M", memory.min(512));
 
-    let mut child = StdCommand::new(&java_cmd)
-        .args([&xmx, &xms, "-jar", &jar_path, "nogui"])
+    let mut cmd = StdCommand::new(&java_cmd);
+    cmd.args([&xmx, &xms, "-jar", &jar_path, "nogui"])
         .current_dir(&work_dir)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
+        .stderr(Stdio::null());
+
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x08000000);
+    }
+
+    let mut child = cmd.spawn()
         .map_err(|e| format!("Failed to start PaperMC: {}", e))?;
 
     if let Some(stdout) = child.stdout.take() {
@@ -103,9 +110,16 @@ pub async fn force_kill_stray_servers() -> Result<bool, String> {
     // Find java processes that have 'paper' in the command line and kill them.
     #[cfg(target_os = "windows")]
     {
-        let output = std::process::Command::new("powershell")
-            .args(["-Command", "$procs = Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'java' -and $_.CommandLine -match 'paper' }; if ($procs) { $procs | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }; Write-Output 'KILLED' }"])
-            .output()
+        let mut cmd = std::process::Command::new("powershell");
+        cmd.args(["-Command", "$procs = Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'java' -and $_.CommandLine -match 'paper' }; if ($procs) { $procs | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }; Write-Output 'KILLED' }"]);
+        
+        #[cfg(target_os = "windows")]
+        {
+            use std::os::windows::process::CommandExt;
+            cmd.creation_flags(0x08000000);
+        }
+            
+        let output = cmd.output()
             .map_err(|e| e.to_string())?;
             
         let stdout = String::from_utf8_lossy(&output.stdout);

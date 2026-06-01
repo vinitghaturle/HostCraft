@@ -20,11 +20,18 @@ pub async fn start_syncthing(
     // Use the directory of the executable itself (or a subfolder) as the home directory
     let home_dir = std::path::Path::new(&exe_path).parent().unwrap().join("config");
     
-    let child = StdCommand::new(&exe_path)
-        .args(["--no-browser", "--no-restart", "--home", home_dir.to_str().unwrap()])
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
+    let mut cmd = StdCommand::new(&exe_path);
+    cmd.args(["--no-browser", "--no-restart", "--home", home_dir.to_str().unwrap()])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x08000000);
+    }
+
+    let child = cmd.spawn()
         .map_err(|e| format!("Failed to start Syncthing: {}", e))?;
 
     *process_guard = Some(child);
