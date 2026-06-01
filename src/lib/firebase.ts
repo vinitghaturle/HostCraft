@@ -3,13 +3,13 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  projectId: "hostcraft-656",
-  appId: "1:637245823266:web:05dadc259d48903d25ad7b",
-  storageBucket: "hostcraft-656.firebasestorage.app",
-  apiKey: "AIzaSyCA5ojk4fEeZPjJErujRO7FL7w6GYKYcyg",
-  authDomain: "hostcraft-656.firebaseapp.com",
-  messagingSenderId: "637245823266",
-  measurementId: "G-XXXXXXXXXX"
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
