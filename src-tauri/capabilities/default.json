@@ -1,0 +1,65 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "fs:default",
+    "fs:allow-appdata-read-recursive",
+    "fs:allow-appdata-write-recursive",
+    "fs:allow-applocaldata-read-recursive",
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [{ "path": "$APPDATA/**" }]
+    },
+    {
+      "identifier": "fs:allow-read",
+      "allow": [
+        { "path": "$LOCALAPPDATA/Syncthing/*" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [
+        { "path": "$LOCALAPPDATA/Syncthing/*" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        { "path": "$LOCALAPPDATA/Syncthing/*" },
+        { "path": "$APPDATA/**" }
+      ]
+    },
+    "http:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "http://127.0.0.1:8384/*" },
+        { "url": "https://api.papermc.io/*" }
+      ]
+    },
+    "shell:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        { "name": "java", "cmd": "java", "args": true },
+        { "name": "curl", "cmd": "curl", "args": true },
+        { "name": "tar", "cmd": "tar", "args": true }
+      ]
+    },
+    "shell:allow-kill",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        { "name": "syncthing", "cmd": "syncthing", "args": true },
+        { "name": "binaries/playit", "sidecar": true, "args": true },
+        { "name": "java", "cmd": "java", "args": true },
+        { "name": "curl", "cmd": "curl", "args": true },
+        { "name": "tar", "cmd": "tar", "args": true }
+      ]
+    }
+  ]
+}
